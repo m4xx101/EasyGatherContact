@@ -38,7 +38,19 @@ def gather_contacts(company, domain, chrome_driver_path):
             print(f"Scraping {site} page {page_num}")
 
             last_height = browser.execute_script("return document.body.scrollHeight")
+            while True:
+                browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)  # Reduce the sleep time for faster scrolling
+                new_height = browser.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
 
+            results = browser.find_elements(By.CSS_SELECTOR, "h3")
+            for result in results:
+                data = result.text.split('-')
+                if len(data) > 1 and company.lower() in data[-1].lower():
+                    full_name_and_designation = data[0].strip()
                     if full_name_and_designation not in names_with_designation:
                         names_with_designation.append(full_name_and_designation)
 
